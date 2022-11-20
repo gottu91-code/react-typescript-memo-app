@@ -1,26 +1,39 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { ChangeEvent, useState, FC, useCallback } from "react";
+import styled from "styled-components";
+import { MemoList } from "./MemoList";
+import { useMemoList } from "./hooks/useMemoList";
 
-function App() {
+export const App: FC = () => {
+  // カスタムフックからそれぞれ取得
+  const { memos, addTodo, deleteTodo } = useMemoList();
+  // テキストボックスState
+  const [text, setText] = useState('');
+
+  // テキストボックス入力時に入力内容をStateに設定
+  const onChangeText = (e: ChangeEvent<HTMLInputElement>) => setText(e.target.value);
+
+  // [追加]ボタン押下時
+  const onClickAdd = () => {
+    addTodo(text);
+    // テキストボックスを空に
+    setText('');
+  };
+
+  // [削除]ボタン押下時(何番目が押されたかを引数で受け取る)
+  const onClickDelete = useCallback((index: number) => {
+    deleteTodo(index);
+  }, [deleteTodo]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>簡単メモアプリ</h1>
+      <input type="text" value={text} onChange={onChangeText} />
+      <SButton onClick={onClickAdd}>追加</SButton>
+      <MemoList memos={memos} onClickDelete={onClickDelete} />
     </div>
   );
-}
+};
 
-export default App;
+const SButton = styled.button`
+  margin-left: 16px;
+`;
